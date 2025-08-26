@@ -1,0 +1,46 @@
+# -----------------------------------------------------
+# CONFIGURACIÓN DE LA BASE DE DATOS (MySQL)
+# -----------------------------------------------------
+spring:
+  datasource:
+    # URL de conexión a tu base de datos.
+    # IMPORTANTE: Incluye los parámetros para evitar errores de conexión con MySQL.
+    url: jdbc:mysql://localhost:3307/eventsys_lb?allowPublicKeyRetrieval=true&useSSL=false
+    # Usuario de tu base de datos (cámbialo si usas otro).
+    username: root
+    # Contraseña de tu base de datos (cámbiala por la tuya).
+    password: 71137665
+    # Driver de MySQL.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # -----------------------------------------------------
+  # CONFIGURACIÓN DE JPA / HIBERNATE
+  # -----------------------------------------------------
+  jpa:
+    # Le dice a Hibernate qué dialecto de SQL usar para MySQL.
+    database-platform: org.hibernate.dialect.MySQLDialect
+    # Muestra en la consola las sentencias SQL que Hibernate ejecuta.
+    show-sql: true
+    hibernate:
+      # Configuración de DDL (Data Definition Language).
+      # 'validate': Valida que el esquema de la BD coincida con las entidades. Falla si no coinciden.
+      # 'update': Intenta actualizar el esquema de la BD si hay diferencias. Útil en desarrollo.
+      # 'create-drop': Crea el esquema al iniciar y lo borra al detener. Útil para pruebas.
+      # 'none': No hace nada. Recomendado para producción.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        # Formatea el SQL mostrado en la consola para que sea más legible.
+        format_sql: true
+
+# -----------------------------------------------------
+# CONFIGURACIÓN DE JWT (JSON Web Tokens)
+# -----------------------------------------------------
+jwt:
+  # Clave secreta para firmar los tokens. DEBE ser larga y segura.
+  # Puedes generar una online (ej. en https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx)
+  secret: MI_CLAVE_SECRETA_SUPER_LARGA_Y_SEGURA_PARA_PROYECTO_EVENTSYS_2025
+  # Duración del token de acceso (ej. 1 hora en milisegundos).
+  expiration: 3600000
+  # Duración del token de refresco (ej. 7 días en milisegundos).
+  refresh-expiration: 604800000
