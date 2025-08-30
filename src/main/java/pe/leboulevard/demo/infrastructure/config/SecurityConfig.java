@@ -3,12 +3,12 @@ package pe.leboulevard.demo.infrastructure.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,13 +29,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    // NUEVO: Inyectamos nuestro manejador de excepciones personalizado
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler; // <-- 1. INYECTA EL NUEVO HANDLER
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -46,15 +44,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                // Esta línea es la razón por la que no podemos usar 'invalidSessionUrl'.
-                // La aplicación no tiene estado, depende del JWT.
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/*.ico").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/public/auth/logout").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        // Rutas públicas
+                        .requestMatchers("/public/**", "/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/*.ico").permitAll()
+
+                        // Módulos de gestión solo para Administradores
+                        .requestMatchers("/empleados/**", "/departamentos/**", "/cargos/**", "/usuarios/**", "/roles/**", "/permisos/**").hasRole("Administrador")
+
+                        // Cualquier usuario autenticado (sin importar el rol)
+                        .requestMatchers("/api/**", "/dashboard", "/acceso-denegado").authenticated() // <-- 2. AÑADE "/acceso-denegado" AQUÍ
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -63,15 +63,14 @@ public class SecurityConfig {
                         .addLogoutHandler(new CookieClearingLogoutHandler("jwt-token"))
                         .logoutSuccessUrl("/login?logout=true")
                 )
-                // --- INICIO: NUEVA SECCIÓN ---
-                // Aquí manejamos los errores de autenticación, como un token JWT expirado.
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler) // <-- 3. REGISTRA TU NUEVO HANDLER
                 )
-                // --- FIN: NUEVA SECCIÓN ---
                 .build();
     }
 
+    // El método corsConfigurationSource() no necesita cambios
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

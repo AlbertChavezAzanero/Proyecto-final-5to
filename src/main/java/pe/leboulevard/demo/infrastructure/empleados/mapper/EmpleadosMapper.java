@@ -6,6 +6,6 @@ import pe.leboulevard.demo.infrastructure.empleados.entity.EmpleadosEntity;
 
 @Mapper(componentModel = "spring")
 public interface EmpleadosMapper {
-    EmpleadosModel toModel(EmpleadosEntity entity);
     EmpleadosEntity toEntity(EmpleadosModel model);
+    EmpleadosModel toModel(EmpleadosEntity entity);
 }

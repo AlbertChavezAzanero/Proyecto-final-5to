@@ -22,7 +22,7 @@ public class DepartamentosEntity {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion", columnDefinition = "TEXT")
+    @Column(name = "descripcion")
     private String descripcion;
 
     @Column(name = "activo")
@@ -32,13 +32,14 @@ public class DepartamentosEntity {
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "usuario_creacion", nullable = false, length = 50)
+    @Column(name = "usuario_creacion", nullable = false, updatable = false)
     private String usuarioCreacion;
 
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    @Column(name = "usuario_actualizacion", nullable = false, length = 50)
+    @Column(name = "usuario_actualizacion", nullable = false)
     private String usuarioActualizacion;
+
 }

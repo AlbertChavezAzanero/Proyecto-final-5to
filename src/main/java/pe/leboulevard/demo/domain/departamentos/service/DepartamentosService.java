@@ -1,28 +1,19 @@
 package pe.leboulevard.demo.domain.departamentos.service;
 
 import pe.leboulevard.demo.domain.departamentos.model.DepartamentosModel;
-
 import java.util.List;
 import java.util.Optional;
 
-public class DepartamentosService {
+public interface DepartamentosService {
 
-    List<DepartamentosModel> ListarDepartamentos(){
-        return null;
-    }
-    Optional<DepartamentosModel> buscarPorId(Long id_departamento) {
-        return null;
-    }
+    List<DepartamentosModel> listarTodosLosDepartamentos();
 
-    Optional<DepartamentosModel> buscarPornombre(String nombre) {
-        return null;
-    }
+    Optional<DepartamentosModel> buscarPorId(Integer id);
 
-    DepartamentosModel guardar(DepartamentosModel departamentos) {
-        return null;
-    }
+    DepartamentosModel guardarDepartamento(DepartamentosModel departamento);
 
-    void eliminar(Long id_departamento) {
+    void eliminarDepartamento(Integer id);
 
-    }
+    // --- ¡AÑADE ESTA LÍNEA QUE FALTA AQUÍ! ---
+    void cambiarEstadoDepartamento(Integer id);
 }

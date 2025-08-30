@@ -70,6 +70,7 @@
 <main class="container mt-4">
     <div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
         <div class="container-fluid py-5">
+
             <div sec:authorize="isAuthenticated()">
                 <h1 class="display-5 fw-bold">
                     ¡Bienvenido de nuevo, <span sec:authentication="name">Usuario</span>!
@@ -78,6 +79,7 @@
                     Has ingresado a EventSys Pro. Utiliza la barra de navegación para gestionar el sistema.
                 </p>
             </div>
+
             <div sec:authorize="isAnonymous()">
                 <h1 class="display-5 fw-bold">
                     Bienvenido a EventSys Pro
@@ -99,20 +101,23 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script sec:authorize="isAuthenticated()">
+    // Este script solo se ejecutará si el usuario está autenticado
     let inactivityTimer;
 
+    // Se ejecuta cuando el tiempo de inactividad se agota.
     function logoutUser() {
-        // ==== LÍNEA CRÍTICA CORREGIDA ====
-        // La URL ahora apunta al endpoint correcto que creamos en AuthController.
-        // ANTES: window.location.href = '/logout?reason=inactivity';
-        window.location.href = '/public/auth/logout?reason=inactivity'; // <-- URL CORRECTA
+        // Redirige directamente al logout con el motivo de inactividad.
+        window.location.href = '/logout?reason=inactivity';
     }
 
+    // Reinicia el temporizador cada vez que hay actividad.
     function resetTimer() {
         clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(logoutUser, 3 * 60 * 1000); // 3 minutos
+        // Configurado para 3 minutos (3 * 60 * 1000 milisegundos)
+        inactivityTimer = setTimeout(logoutUser, 3 * 60 * 1000);
     }
 
+    // Inicia y reinicia el temporizador con la actividad del usuario.
     window.onload = resetTimer;
     document.onmousemove = resetTimer;
     document.onmousedown = resetTimer;

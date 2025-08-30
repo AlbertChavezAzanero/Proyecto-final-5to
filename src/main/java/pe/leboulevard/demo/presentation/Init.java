@@ -18,7 +18,7 @@ public class Init {
 
     @PostConstruct
     public void star() {
-        Optional<CargosModel> cargos = cargosService.buscarCargoPorId(1); // Se llama al método correcto y se pasa un Integer
+        Optional<CargosModel> cargos = cargosService.buscarPorId(1);; // Se llama al método correcto y se pasa un Integer
         if (cargos.isPresent()) {
             log.info("Cargos nombre:{}", cargos.get().getNombre());
             log.info("Cargos Descripcion:{}", cargos.get().getDescripcion());

@@ -1,4 +1,4 @@
-package pe.leboulevard.demo.infrastructure.config; // Asegúrate de que tu paquete sea el correcto
+package pe.leboulevard.demo.infrastructure.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,10 +13,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
-                         AuthenticationException authException) throws IOException { // <-- ¡AQUÍ ESTÁ EL CAMBIO!
+                         AuthenticationException authException) throws IOException {
 
-        // Cada vez que ocurra un error de autenticación (ej: token JWT expirado o inválido),
-        // redirigimos al usuario a la página de login con el parámetro 'reason=inactivity'.
-        response.sendRedirect("/login?reason=inactivity");
+        // CAMBIO: Ahora el mensaje de error es más preciso.
+        // O podrías redirigir a una página de error personalizada, ej: "/acceso-denegado"
+        response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
     }
 }

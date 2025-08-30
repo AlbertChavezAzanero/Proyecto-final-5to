@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${usuario.idUsuario == null ? 'Nuevo Usuario' : 'Editar Usuario'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/dashboard}"><i class="fas fa-calendar-alt me-2"></i>EventSys</a>
+    </div>
+</nav>
+
+<main class="container mt-4">
+    <h1 th:text="${usuario.idUsuario == null ? 'Registrar Nuevo Usuario' : 'Editando Usuario: ' + usuario.username}"></h1>
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+            <form th:action="${usuario.idUsuario == null ? '/usuarios/crear' : '/usuarios/actualizar'}" th:object="${usuario}" method="post">
+                <input type="hidden" th:if="${usuario.idUsuario != null}" th:field="*{idUsuario}" />
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" th:field="*{username}" th:readonly="${usuario.idUsuario != null}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label" th:text="${usuario.idUsuario == null ? 'Contraseña' : 'Nueva Contraseña (Opcional)'}"></label>
+                        <input type="password" class="form-control" id="password" th:field="*{passwordHash}" th:placeholder="${usuario.idUsuario != null ? 'Dejar en blanco para no cambiar' : ''}" th:required="${usuario.idUsuario == null}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="rol" class="form-label">Rol</label>
+                        <select id="rol" class="form-select" th:field="*{rol.idRol}" required>
+                            <option value="">Seleccionar Rol...</option>
+                            <option th:each="r : ${roles}" th:value="${r.idRol}" th:text="${r.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="empleado" class="form-label">Empleado Asociado</label>
+                        <div th:if="${usuario.idUsuario == null}">
+                            <select id="empleado" class="form-select" th:field="*{empleado.idEmpleado}" required>
+                                <option value="">Seleccionar Empleado...</option>
+                                <option th:each="emp : ${empleados}" th:value="${emp.idEmpleado}" th:text="${emp.nombres + ' ' + emp.apellidos}"></option>
+                            </select>
+                            <div class="form-text" th:if="${#lists.isEmpty(empleados)}">No hay empleados sin usuario. Por favor, cree un empleado primero.</div>
+                        </div>
+                        <div th:if="${usuario.idUsuario != null}">
+                            <label>
+                                <input type="text" class="form-control" th:value="${usuario.empleado.nombres + ' ' + usuario.empleado.apellidos}" readonly>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="estaActivo" th:field="*{estaActivo}" th:checked="${usuario.idUsuario == null ? true : usuario.estaActivo}">
+                    <label class="form-check-label" for="estaActivo">
+                        Usuario Activo
+                    </label>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Guardar</button>
+                    <a th:href="@{/usuarios}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

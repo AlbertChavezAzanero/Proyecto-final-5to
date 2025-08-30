@@ -1,13 +1,14 @@
 package pe.leboulevard.demo.application.security.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException; // <-- NUEVO IMPORT
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j; // <-- NUEVO IMPORT
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j // <-- NUEVA ANOTACIÓN para poder registrar logs
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
@@ -35,33 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String jwt = null;
-
-        // Busca el token en la cabecera "Authorization"
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-        }
-        // Si no está en la cabecera, busca el token en las cookies
-        else if (request.getCookies() != null) {
-            jwt = Arrays.stream(request.getCookies())
-                    .filter(cookie -> "jwt-token".equals(cookie.getName()))
-                    .map(Cookie::getValue)
-                    .findFirst()
-                    .orElse(null);
-        }
+        final String jwt = extractJwtFromCookie(request);
 
         if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ==== SECCIÓN MODIFICADA CON TRY-CATCH ====
         try {
             final String username = jwtProvider.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
                 if (jwtProvider.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -70,15 +57,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.info(">>> Usuario '{}' autenticado exitosamente. <<<", username);
                 }
             }
-        } catch (ExpiredJwtException e) {
-            // Si el token ha expirado, simplemente registramos el evento y no hacemos nada más.
-            // La petición continuará sin un usuario autenticado.
-            log.warn("JWT Token ha expirado: {}", e.getMessage());
-        }
-        // ===============================================
+            filterChain.doFilter(request, response);
 
-        filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            log.warn("El token JWT ha expirado: {}", e.getMessage());
+            handleInvalidToken(response, request, "session_expired");
+        } catch (JwtException e) {
+            log.warn("Token JWT inválido: {}", e.getMessage());
+            handleInvalidToken(response, request, "invalid_token");
+        }
+    }
+
+    private String extractJwtFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> "jwt-token".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // --- MÉTODO NUEVO PARA CENTRALIZAR EL MANEJO DE ERRORES ---
+    private void handleInvalidToken(HttpServletResponse response, HttpServletRequest request, String errorType) throws IOException {
+        // 1. Limpiamos el contexto de seguridad
+        SecurityContextHolder.clearContext();
+
+        // 2. Creamos una cookie para invalidar la existente en el navegador
+        Cookie cookie = new Cookie("jwt-token", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); // Le dice al navegador que la borre
+        response.addCookie(cookie);
+
+        // 3. Redirigimos al login con un mensaje claro
+        response.sendRedirect(request.getContextPath() + "/login?error=" + errorType);
     }
 }

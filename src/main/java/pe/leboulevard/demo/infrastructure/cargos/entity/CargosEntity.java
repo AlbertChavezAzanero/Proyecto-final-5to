@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cargos")
-@Getter
-@Setter
+@Getter // <-- Asegúrate de que esta anotación esté
+@Setter // <-- ¡ESTA ANOTACIÓN ES LA QUE FALTA Y SOLUCIONA EL ERROR!
 public class CargosEntity {
 
     @Id
@@ -23,10 +23,10 @@ public class CargosEntity {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion", columnDefinition = "TEXT")
+    @Column(name = "descripcion")
     private String descripcion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // Usar LAZY es una buena práctica
     @JoinColumn(name = "id_departamento")
     private DepartamentosEntity departamento;
 
@@ -34,14 +34,14 @@ public class CargosEntity {
     private Boolean activo;
 
     @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "usuario_creacion", nullable = false, length = 50)
+    @Column(name = "usuario_creacion", nullable = false, updatable = false, length = 50)
     private String usuarioCreacion;
 
     @UpdateTimestamp
-    @Column(name = "fecha_actualizacion")
+    @Column(name = "fecha_actualizacion", nullable = false)
     private LocalDateTime fechaActualizacion;
 
     @Column(name = "usuario_actualizacion", nullable = false, length = 50)

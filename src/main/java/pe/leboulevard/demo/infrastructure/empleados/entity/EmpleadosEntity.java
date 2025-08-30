@@ -5,13 +5,19 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import pe.leboulevard.demo.infrastructure.cargos.entity.CargosEntity;
+import pe.leboulevard.demo.infrastructure.departamentos.entity.DepartamentosEntity;
+import pe.leboulevard.demo.infrastructure.estado.entity.EstadoEntity;
+import pe.leboulevard.demo.infrastructure.estadocivil.entity.EstadoCivilEntity;
+import pe.leboulevard.demo.infrastructure.genero.entity.GeneroEntity;
+import pe.leboulevard.demo.infrastructure.tipodocumento.entity.TipoDocumentoEntity;
 
-import java.math.BigDecimal; // <-- CAMBIO 1: Se importa BigDecimal
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="empleados")
+@Table(name = "empleados")
 @Getter
 @Setter
 public class EmpleadosEntity {
@@ -21,56 +27,59 @@ public class EmpleadosEntity {
     @Column(name = "id_empleado")
     private Integer idEmpleado;
 
-    @Column(name = "id_tipo_documento")
-    private Integer idTipoDocumento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_documento")
+    private TipoDocumentoEntity tipoDocumento;
 
-    @Column(name = "numero_documento")
+    @Column(name = "numero_documento", nullable = false, unique = true, length = 15)
     private String numeroDocumento;
 
-    @Column(name = "nombres")
+    @Column(name = "nombres", nullable = false, length = 100)
     private String nombres;
 
-    @Column(name = "apellidos")
+    @Column(name = "apellidos", nullable = false, length = 100)
     private String apellidos;
 
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
-    @Column(name = "id_genero")
-    private Integer idGenero;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_genero", nullable = false)
+    private GeneroEntity genero;
 
-    @Column(name = "id_estado_civil")
-    private Integer idEstadoCivil;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_estado_civil", nullable = false)
+    private EstadoCivilEntity estadoCivil;
 
-    @Column(name = "telefono")
+    @Column(name = "telefono", length = 50)
     private String telefono;
 
-    @Column(name = "email_personal")
+    @Column(name = "email_personal", length = 100)
     private String emailPersonal;
 
-    @Column(name = "email_corporativo")
+    @Column(name = "email_corporativo", length = 100)
     private String emailCorporativo;
 
-    @Column(name = "direccion")
+    @Column(name = "direccion", length = 255)
     private String direccion;
 
-    @Column(name = "id_departamento")
-    private Integer idDepartamento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_departamento")
+    private DepartamentosEntity departamento;
 
-    @Column(name = "id_cargo")
-    private Integer idCargo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cargo")
+    private CargosEntity cargo;
 
-    @Column(name = "fecha_ingreso")
+    @Column(name = "fecha_ingreso", nullable = false, updatable = false)
     private LocalDate fechaIngreso;
 
-    @Column(name = "fecha_cese")
-    private LocalDate fechaCese;
+    @Column(name = "salario", nullable = false)
+    private BigDecimal salario;
 
-    @Column(name = "salario")
-    private BigDecimal salario; // <-- CAMBIO 2: El tipo de dato ahora es BigDecimal
-
-    @Column(name = "id_estado")
-    private Integer idEstado;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_estado")
+    private EstadoEntity estado;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

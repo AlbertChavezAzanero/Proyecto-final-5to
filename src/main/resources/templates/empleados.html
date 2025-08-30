@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Empleados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Gestión de Empleados</h1>
+        <a th:href="@{/empleados/nuevo}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Nuevo Empleado</a>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Nombres y Apellidos</th>
+                    <th>Documento</th>
+                    <th>Cargo</th>
+                    <th>Departamento</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="emp : ${empleados}">
+                    <td th:text="${emp.nombres + ' ' + emp.apellidos}"></td>
+                    <td th:text="${emp.numeroDocumento}"></td>
+                    <td th:text="${emp.cargo != null ? emp.cargo.nombre : 'No asignado'}"></td>
+                    <td th:text="${emp.departamento != null ? emp.departamento.nombre : 'No asignado'}"></td>
+                    <td>
+                            <span th:if="${emp.estado != null}"
+                                  th:text="${emp.estado.descripcion}"
+                                  th:classappend="${emp.estado.idEstado == 1 ? 'badge bg-success' : 'badge bg-danger'}"
+                                  class="badge">
+                            </span>
+                        <span th:if="${emp.estado == null}" class="badge bg-secondary">No definido</span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/empleados/editar/{id}(id=${emp.idEmpleado})}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <form th:action="@{/empleados/cambiar-estado/{id}(id=${emp.idEmpleado})}" method="post" class="d-inline">
+                            <button type="submit"
+                                    th:title="${(emp.estado != null && emp.estado.idEstado == 1) ? 'Desactivar' : 'Activar'}"
+                                    th:classappend="${(emp.estado != null && emp.estado.idEstado == 1) ? 'btn-outline-danger' : 'btn-outline-success'}"
+                                    class="btn btn-sm">
+                                <i th:classappend="${(emp.estado != null && emp.estado.idEstado == 1) ? 'fa-toggle-off' : 'fa-toggle-on'}" class="fas"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

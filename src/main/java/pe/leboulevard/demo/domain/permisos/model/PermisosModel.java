@@ -1,27 +1,21 @@
 package pe.leboulevard.demo.domain.permisos.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import pe.leboulevard.demo.domain.roles.model.RolesModel; // Importante para la relación
 
-import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.Set; // Importante para la colección de roles
 
-import java.time.LocalDate;
-
-@Data
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@Builder
+@Getter
+@Setter
 public class PermisosModel {
+    private Integer idPermiso;
+    private String nombre;
+    private String descripcion;
 
-    private Long id_permiso;
-    private Long id_usuario;
-    private Long id_rol;
-    private Boolean activo;
-    //Campos dde auditoria
-    private LocalDate fecha_creacion;
-    private String usuario_creacion;
-    private LocalDate fecha_actualizacion;
-    private String usuario_actualizacion;
-
-
+    // --- CAMPOS AÑADIDOS PARA SOLUCIONAR LA ADVERTENCIA ---
+    private LocalDateTime fechaCreacion;
+    private String usuarioCreacion;
+    private Set<RolesModel> roles;
 }

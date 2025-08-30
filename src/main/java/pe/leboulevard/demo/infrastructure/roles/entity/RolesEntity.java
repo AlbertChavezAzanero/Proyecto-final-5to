@@ -5,8 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import pe.leboulevard.demo.infrastructure.permisos.entity.PermisosEntity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
@@ -37,8 +40,17 @@ public class RolesEntity {
 
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion; // <-- CORREGIDO para que coincida con TIMESTAMP
+    private LocalDateTime fechaActualizacion;
 
     @Column(name = "usuario_actualizacion", nullable = false, length = 50)
     private String usuarioActualizacion;
+
+    // --- Relación Muchos-a-Muchos con Permisos ---
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "roles_permisos",
+            joinColumns = @JoinColumn(name = "id_rol"),
+            inverseJoinColumns = @JoinColumn(name = "id_permiso")
+    )
+    private Set<PermisosEntity> permisos = new HashSet<>();
 }

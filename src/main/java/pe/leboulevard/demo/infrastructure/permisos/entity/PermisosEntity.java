@@ -3,12 +3,10 @@ package pe.leboulevard.demo.infrastructure.permisos.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import pe.leboulevard.demo.infrastructure.roles.entity.RolesEntity;
-import pe.leboulevard.demo.infrastructure.usuarios.entity.UsuariosEntity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "permisos")
@@ -19,30 +17,21 @@ public class PermisosEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_permiso")
-    private Integer idPermiso; // <-- CORREGIDO de Long a Integer
+    private Integer idPermiso;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private UsuariosEntity usuario;
+    @Column(name = "nombre", nullable = false, unique = true)
+    private String nombre;
 
-    @ManyToOne
-    @JoinColumn(name = "id_rol", nullable = false)
-    private RolesEntity rol;
+    @Column(name = "descripcion")
+    private String descripcion;
 
-    @Column(name = "activo")
-    private Boolean activo;
-
-    @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name = "usuario_creacion", nullable = false, length = 50)
+    @Column(name = "usuario_creacion")
     private String usuarioCreacion;
 
-    @UpdateTimestamp
-    @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
-
-    @Column(name = "usuario_actualizacion", nullable = false, length = 50)
-    private String usuarioActualizacion;
+    // Relación inversa para saber qué roles tienen este permiso
+    @ManyToMany(mappedBy = "permisos")
+    private Set<pe.leboulevard.demo.infrastructure.roles.entity.RolesEntity> roles = new HashSet<>();
 }
