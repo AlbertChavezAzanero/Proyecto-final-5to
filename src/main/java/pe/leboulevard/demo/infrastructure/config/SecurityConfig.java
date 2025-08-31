@@ -30,10 +30,12 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler; // <-- 1. INYECTA EL NUEVO HANDLER
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
-    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -50,11 +52,16 @@ public class SecurityConfig {
                         // Rutas públicas
                         .requestMatchers("/public/**", "/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/*.ico").permitAll()
 
-                        // Módulos de gestión solo para Administradores
-                        .requestMatchers("/empleados/**", "/departamentos/**", "/cargos/**", "/usuarios/**", "/roles/**", "/permisos/**").hasRole("Administrador")
+                        // Rutas protegidas por permisos específicos
+                        .requestMatchers("/clientes/**").hasAuthority("GESTIONAR_CLIENTES")
+                        .requestMatchers("/productos/**").hasAuthority("GESTIONAR_PRODUCTOS")
+                        .requestMatchers("/empleados/**").hasAuthority("GESTIONAR_EMPLEADOS")
+                        .requestMatchers("/departamentos/**").hasAuthority("GESTIONAR_DEPARTAMENTOS")
+                        .requestMatchers("/cargos/**").hasAuthority("GESTIONAR_CARGOS")
+                        .requestMatchers("/usuarios/**", "/roles/**", "/permisos/**").hasAuthority("GESTIONAR_USUARIOS")
 
-                        // Cualquier usuario autenticado (sin importar el rol)
-                        .requestMatchers("/api/**", "/dashboard", "/acceso-denegado").authenticated() // <-- 2. AÑADE "/acceso-denegado" AQUÍ
+                        // Rutas que solo requieren autenticación
+                        .requestMatchers("/api/**", "/dashboard", "/acceso-denegado").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -65,12 +72,11 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(customAuthenticationEntryPoint)
-                                .accessDeniedHandler(customAccessDeniedHandler) // <-- 3. REGISTRA TU NUEVO HANDLER
+                                .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .build();
     }
 
-    // El método corsConfigurationSource() no necesita cambios
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
