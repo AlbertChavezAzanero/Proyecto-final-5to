@@ -8,6 +8,9 @@ import java.util.Optional;
 public interface UsuariosRepositoryJpa extends JpaRepository<UsuariosEntity, Integer> {
     Optional<UsuariosEntity> findByUsername(String username);
 
-    // --- AÑADE ESTE MÉTODO ---
     boolean existsByRolIdRol(Integer idRol);
+
+    // --- AÑADE ESTE NUEVO MÉTODO ---
+    // Spring Data JPA entenderá que debe hacer una búsqueda case-insensitive
+    Optional<UsuariosEntity> findByUsernameIgnoreCase(String username);
 }

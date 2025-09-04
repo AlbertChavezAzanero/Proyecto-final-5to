@@ -11,6 +11,7 @@ import pe.leboulevard.demo.domain.roles.service.RolesService;
 
 @Controller
 @RequestMapping("/roles")
+// ===== LÍNEA CORREGIDA: Volvemos a usar hasRole =====
 @PreAuthorize("hasRole('Administrador')")
 @RequiredArgsConstructor
 public class RolViewController {

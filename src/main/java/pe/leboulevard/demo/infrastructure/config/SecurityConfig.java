@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/public/**", "/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/*.ico").permitAll()
 
                         // Rutas protegidas por permisos específicos
+                        .requestMatchers("/cotizaciones/**").hasAuthority("GESTIONAR_COTIZACIONES")
                         .requestMatchers("/clientes/**").hasAuthority("GESTIONAR_CLIENTES")
                         .requestMatchers("/productos/**").hasAuthority("GESTIONAR_PRODUCTOS")
                         .requestMatchers("/empleados/**").hasAuthority("GESTIONAR_EMPLEADOS")

@@ -22,9 +22,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UsuariosRepositoryJpa usuariosRepositoryJpa;
 
     @Override
-    @Transactional(readOnly = true) // Usar transaccional para asegurar que las relaciones se carguen
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UsuariosEntity usuario = usuariosRepositoryJpa.findByUsername(username)
+        // --- LÍNEA CORREGIDA ---
+        // Cambiamos findByUsername por findByUsernameIgnoreCase
+        UsuariosEntity usuario = usuariosRepositoryJpa.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
         Set<GrantedAuthority> authorities = new HashSet<>();
@@ -33,9 +35,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre()));
 
         // 2. Añadir cada PERMISO como una autoridad
-        usuario.getRol().getPermisos().forEach(permiso -> {
-            authorities.add(new SimpleGrantedAuthority(permiso.getNombre()));
-        });
+        if (usuario.getRol().getPermisos() != null) {
+            usuario.getRol().getPermisos().forEach(permiso -> {
+                authorities.add(new SimpleGrantedAuthority(permiso.getNombre()));
+            });
+        }
 
         return new User(
                 usuario.getUsername(),
@@ -44,7 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 true,
                 true,
                 true,
-                authorities // Pasamos la lista completa de rol + permisos
+                authorities
         );
     }
 }

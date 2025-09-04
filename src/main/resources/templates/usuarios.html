@@ -7,67 +7,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
-
 <div th:replace="~{fragments/navbar :: navbar}"></div>
-
 <main class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Gestión de Usuarios</h1>
         <a th:href="@{/usuarios/formulario}" class="btn btn-primary"><i class="fas fa-user-plus me-1"></i> Nuevo Usuario</a>
     </div>
-
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
-        <span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Empleado Asociado</th>
-                        <th class="text-center">Rol</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="usuario : ${usuarios}">
-                        <td th:text="${usuario.username}"></td>
-                        <td th:text="${usuario.email}"></td>
-                        <td th:text="${usuario.empleado != null ? usuario.empleado.nombres + ' ' + usuario.empleado.apellidos : 'No asignado'}"></td>
-                        <td class="text-center">
-                            <span class="badge bg-info text-dark" th:text="${usuario.rol != null ? usuario.rol.nombre : 'Sin rol'}"></span>
-                        </td>
-                        <td class="text-center">
-                            <span th:text="${usuario.estaActivo ? 'Activo' : 'Inactivo'}"
-                                  th:classappend="${usuario.estaActivo ? 'badge bg-success' : 'badge bg-danger'}"
-                                  class="badge">
-                            </span>
-                        </td>
-                        <td class="text-center">
-                            <a th:href="@{/usuarios/formulario(id=${usuario.idUsuario})}" class="btn btn-sm btn-outline-warning me-1" title="Editar">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Empleado Asociado</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="usuario : ${usuarios}">
+                    <td th:text="${usuario.username}"></td>
+                    <td th:text="${usuario.email}"></td>
+                    <td th:text="${usuario.empleado.nombres + ' ' + usuario.empleado.apellidos}"></td>
+                    <td><span class="badge bg-info text-dark" th:text="${usuario.rol.nombre}"></span></td>
+                    <td><span class="badge" th:classappend="${usuario.estaActivo ? 'bg-success' : 'bg-danger'}" th:text="${usuario.estaActivo ? 'Activo' : 'Inactivo'}"></span></td>
+                    <td>
+                        <a th:href="@{/usuarios/formulario(id=${usuario.idUsuario})}" class="btn btn-sm btn-outline-warning" title="Editar">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </main>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

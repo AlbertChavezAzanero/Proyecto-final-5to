@@ -13,20 +13,19 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/permisos")
+// ===== LÍNEA CORREGIDA: Volvemos a usar hasRole =====
 @PreAuthorize("hasRole('Administrador')")
 @RequiredArgsConstructor
 public class PermisoViewController {
 
     private final PermisosService permisosService;
 
-    // Muestra la lista de roles
     @GetMapping
     public String mostrarListaDeRoles(Model model) {
         model.addAttribute("roles", permisosService.listarTodosLosRoles());
         return "permisos";
     }
 
-    // Muestra el formulario para editar los permisos de un rol específico
     @GetMapping("/rol/{idRol}")
     public String mostrarFormularioDePermisos(@PathVariable Integer idRol, Model model) {
         RolesModel rol = permisosService.buscarRolPorId(idRol)
@@ -37,7 +36,6 @@ public class PermisoViewController {
         return "formulario-permisos";
     }
 
-    // Guarda los cambios de permisos para un rol
     @PostMapping("/rol/{idRol}/guardar")
     public String guardarPermisosParaRol(@PathVariable Integer idRol,
                                          @RequestParam(name = "permisosIds", required = false) List<Integer> permisosIds,
