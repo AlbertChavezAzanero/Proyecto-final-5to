@@ -1,0 +1,344 @@
+
+DROP DATABASE IF EXISTS eventsys_lb;
+CREATE DATABASE eventsys_lb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE eventsys_lb;
+
+-- -----------------------------------------------------
+-- Creación de Todas las Tablas
+-- -----------------------------------------------------
+CREATE TABLE genero (
+    id_genero INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(50) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE estado_civil (
+    id_estado_civil INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(50) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE estado (
+    id_estado INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(50) NOT NULL UNIQUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tipo_documento (
+    id_tipo_documento INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(50) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE departamentos (
+    id_departamento INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE roles (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE categorias_producto (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_categoria VARCHAR(100) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE proveedores (
+    id_proveedor INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_empresa VARCHAR(100),
+    contacto VARCHAR(100),
+    telefono VARCHAR(20),
+    email VARCHAR(100),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE origenes (
+    id_origen INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(50) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE medios_pago (
+    id_medio INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(50) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE permisos (
+    id_permiso INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE cargos (
+    id_cargo INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    id_departamento INT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento) ON DELETE SET NULL
+);
+
+CREATE TABLE productos (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    descripcion TEXT,
+    stock_actual INT,
+    precio_unitario DECIMAL(10,2),
+    id_categoria INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_categoria) REFERENCES categorias_producto(id_categoria)
+);
+
+CREATE TABLE clientes (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    numero_documento VARCHAR(20) NOT NULL,
+    direccion VARCHAR(150),
+    celular VARCHAR(20),
+    email VARCHAR(100),
+    id_origen INT,
+    id_tipo_documento INT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_origen) REFERENCES origenes(id_origen),
+    FOREIGN KEY (id_tipo_documento) REFERENCES tipo_documento(id_tipo_documento)
+);
+
+CREATE TABLE empleados (
+    id_empleado INT AUTO_INCREMENT PRIMARY KEY,
+    id_tipo_documento INT NULL,
+    numero_documento VARCHAR(15) NOT NULL UNIQUE,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE,
+    id_genero INT NOT NULL,
+    id_estado_civil INT NOT NULL,
+    telefono VARCHAR(50),
+    email_personal VARCHAR(100),
+    email_corporativo VARCHAR(100),
+    direccion VARCHAR(255),
+    id_departamento INT NULL,
+    id_cargo INT NULL,
+    fecha_ingreso DATE NOT NULL,
+    fecha_cese DATE NULL,
+    motivo_cese VARCHAR(255) NULL,
+    salario DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    id_estado INT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_cargo) REFERENCES cargos(id_cargo) ON DELETE SET NULL,
+    FOREIGN KEY (id_estado) REFERENCES estado(id_estado) ON DELETE SET NULL,
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento) ON DELETE SET NULL,
+    FOREIGN KEY (id_tipo_documento) REFERENCES tipo_documento(id_tipo_documento) ON DELETE SET NULL,
+    FOREIGN KEY (id_genero) REFERENCES genero(id_genero) ON DELETE RESTRICT,
+    FOREIGN KEY (id_estado_civil) REFERENCES estado_civil(id_estado_civil) ON DELETE RESTRICT
+);
+
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    esta_activo BOOLEAN DEFAULT TRUE,
+    id_rol INT NOT NULL,
+    id_empleado INT NOT NULL UNIQUE,
+    ultimo_acceso TIMESTAMP NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_rol) REFERENCES roles(id_rol),
+    FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado) ON DELETE CASCADE
+);
+
+CREATE TABLE roles_permisos (
+    id_rol INT NOT NULL,
+    id_permiso INT NOT NULL,
+    PRIMARY KEY (id_rol, id_permiso),
+    FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE,
+    FOREIGN KEY (id_permiso) REFERENCES permisos(id_permiso) ON DELETE CASCADE
+);
+
+CREATE TABLE cotizaciones (
+    id_cotizacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    id_usuario INT NOT NULL,
+    fecha_emision DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_evento DATE NOT NULL,
+    fecha_devolucion DATE NOT NULL,
+    direccion_evento VARCHAR(200) NOT NULL,
+    estado VARCHAR(20) DEFAULT 'pendiente',
+    total DECIMAL(10,2) DEFAULT 0.00,
+    observaciones TEXT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+CREATE TABLE detalle_cotizacion (
+    id_detalle_cotizacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_cotizacion INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(10,2),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(50) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    usuario_actualizacion VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_cotizacion) REFERENCES cotizaciones(id_cotizacion) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+-- (Tablas aún no usadas)
+CREATE TABLE contratos ( id_contrato INT AUTO_INCREMENT PRIMARY KEY, id_cotizacion INT UNIQUE, fecha_contrato DATETIME, id_usuario INT, FOREIGN KEY (id_cotizacion) REFERENCES cotizaciones(id_cotizacion), FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario));
+
+-- -----------------------------------------------------
+-- INSERCIÓN DE DATOS INICIALES (SEED DATA)
+-- -----------------------------------------------------
+
+-- 1. Catálogos
+INSERT INTO genero (descripcion, usuario_creacion, usuario_actualizacion) VALUES ('Masculino', 'system', 'system'), ('Femenino', 'system', 'system');
+INSERT INTO estado_civil (descripcion, usuario_creacion, usuario_actualizacion) VALUES ('Soltero(a)', 'system', 'system'), ('Casado(a)', 'system', 'system'), ('Viudo(a)', 'system', 'system'), ('Divorciado(a)', 'system', 'system');
+INSERT INTO estado (descripcion, usuario_creacion, usuario_actualizacion) VALUES ('Activo', 'system', 'system'), ('Inactivo', 'system', 'system');
+INSERT INTO tipo_documento (descripcion, usuario_creacion, usuario_actualizacion) VALUES ('DNI', 'system', 'system'), ('RUC', 'system', 'system'), ('Carnet de Extranjería', 'system', 'system'), ('Pasaporte', 'system', 'system');
+INSERT INTO origenes (descripcion, usuario_creacion, usuario_actualizacion) VALUES ('Redes Sociales', 'system', 'system'), ('Recomendación', 'system', 'system'), ('Página Web', 'system', 'system');
+INSERT INTO categorias_producto (nombre_categoria, usuario_creacion, usuario_actualizacion) VALUES ('Sillas', 'system', 'system'), ('Mesas', 'system', 'system'), ('Mantelería', 'system', 'system'), ('Decoración', 'system', 'system');
+
+-- 2. Datos de la Empresa
+INSERT INTO departamentos (nombre, usuario_creacion, usuario_actualizacion) VALUES ('Administración', 'system', 'system'), ('Operaciones', 'system', 'system');
+INSERT INTO cargos (nombre, id_departamento, usuario_creacion, usuario_actualizacion) VALUES ('Gerente General', 1, 'system', 'system'), ('Jefe de Operaciones', 2, 'system', 'system');
+
+-- 3. Seguridad
+INSERT INTO roles (nombre, descripcion, usuario_creacion, usuario_actualizacion) VALUES
+('Administrador', 'Acceso total al sistema', 'system', 'system'),
+('Vendedor', 'Acceso a cotizaciones y ventas', 'system', 'system'),
+('Operador', 'Acceso a logística y operaciones', 'system', 'system'),
+('Usuario', 'Usuario recién registrado, sin permisos especiales', 'system', 'system');
+
+INSERT INTO permisos (nombre, descripcion, usuario_creacion) VALUES
+('VER_DASHBOARD', 'Permite ver la página principal del dashboard', 'system'),
+('GESTIONAR_EMPLEADOS', 'Permite administrar empleados', 'system'),
+('GESTIONAR_DEPARTAMENTOS', 'Permite administrar departamentos', 'system'),
+('GESTIONAR_CARGOS', 'Permite administrar cargos', 'system'),
+('GESTIONAR_USUARIOS', 'Permite administrar usuarios, roles y permisos', 'system'),
+('GESTIONAR_PRODUCTOS', 'Permite administrar el inventario de productos', 'system'),
+('GESTIONAR_CLIENTES', 'Permite administrar los clientes', 'system'),
+('GESTIONAR_COTIZACIONES', 'Permite crear y administrar cotizaciones', 'system');
+
+-- 4. Empleados y Usuarios Base
+INSERT INTO empleados (id_tipo_documento, numero_documento, nombres, apellidos, id_genero, id_estado_civil, fecha_ingreso, salario, id_estado, usuario_creacion, usuario_actualizacion) VALUES
+(1, '11111111', 'Super', 'Admin', 1, 1, '2025-01-01', 5000.00, 1, 'system', 'system'),
+(1, '22222222', 'Vendedor', 'Uno', 2, 2, '2025-01-01', 1500.00, 1, 'system', 'system');
+
+-- Contraseña para todos los usuarios es 'admin'
+INSERT INTO usuarios (username, email, password_hash, id_rol, id_empleado, usuario_creacion, usuario_actualizacion) VALUES
+('admin', 'admin@eventsys.com', '$2a$10$8q55s20L92I9/SS7v9Lw1.4sT9.V9zG9R3xUp2wB5E1.oRxz2.W1e', 1, 1, 'system', 'system'),
+('vendedor', 'vendedor@eventsys.com', '$2a$10$8q55s20L92I9/SS7v9Lw1.4sT9.V9zG9R3xUp2wB5E1.oRxz2.W1e', 2, 2, 'system', 'system');
+
+-- -----------------------------------------------------
+-- INSERCIÓN DE DATOS DE EJEMPLO
+-- -----------------------------------------------------
+
+-- Insersión de Clientes de ejemplo
+INSERT INTO clientes (nombre, numero_documento, direccion, celular, email, id_origen, id_tipo_documento, usuario_creacion, usuario_actualizacion) VALUES
+('Constructora ABC S.A.C.', '20123456789', 'Av. El Sol 123, Trujillo', '987654321', 'eventos@constructora-abc.com', 2, 2, 'system', 'system'),
+('Ana María López Torres', '45879921', 'Jr. Pizarro 555, Trujillo', '998877665', 'ana.lopez@email.com', 1, 1, 'system', 'system'),
+('Carlos Mendoza Ruiz', '70123456', 'Urb. Las Quintanas C-12', '911223344', 'carlos.m@email.com', 3, 1, 'system', 'system');
+
+-- Insersión de Productos de ejemplo
+INSERT INTO productos (nombre, descripcion, stock_actual, precio_unitario, id_categoria, usuario_creacion, usuario_actualizacion) VALUES
+('Silla Tiffany Blanca', 'Silla de resina blanca modelo Tiffany para eventos elegantes.', 200, 5.50, 1, 'system', 'system'),
+('Mesa Redonda (10 personas)', 'Mesa redonda de 1.5m de diámetro para 10 invitados.', 30, 25.00, 2, 'system', 'system'),
+('Mantel Redondo Blanco', 'Mantel de tela jacquard color blanco para mesa redonda.', 50, 15.00, 3, 'system', 'system'),
+('Centro de Mesa Floral Básico', 'Arreglo floral sencillo con rosas blancas y follaje.', 40, 35.00, 4, 'system', 'system'),
+('Silla Plegable de Metal', 'Silla plegable de metal, color negro, para todo tipo de evento.', 300, 2.50, 1, 'system', 'system');
+
+
+-- 5. Asignación de Permisos a Roles
+-- Rol Administrador (id_rol = 1) tiene acceso a TODO.
+INSERT INTO roles_permisos (id_rol, id_permiso) VALUES
+(1, 1), -- VER_DASHBOARD
+(1, 2), -- GESTIONAR_EMPLEADOS
+(1, 3), -- GESTIONAR_DEPARTAMENTOS
+(1, 4), -- GESTIONAR_CARGOS
+(1, 5), -- GESTIONAR_USUARIOS (Esto incluye acceso a Usuarios, Roles y Permisos)
+(1, 6), -- GESTIONAR_PRODUCTOS
+(1, 7), -- GESTIONAR_CLIENTES
+(1, 8); -- GESTIONAR_COTIZACIONES
+
+-- Rol Vendedor (id_rol = 2) tiene permisos para el ciclo de ventas.
+INSERT INTO roles_permisos (id_rol, id_permiso) VALUES
+(2, 1), -- VER_DASHBOARD
+(2, 6), -- GESTIONAR_PRODUCTOS (para verlos y añadirlos a cotizaciones)
+(2, 7), -- GESTIONAR_CLIENTES
+(2, 8); -- GESTIONAR_COTIZACIONES
+
+-- Rol Operador (id_rol = 3) tiene permisos para la logística.
+INSERT INTO roles_permisos (id_rol, id_permiso) VALUES
+(3, 1), -- VER_DASHBOARD
+(3, 2), -- GESTIONAR_EMPLEADOS (para asignar personal a eventos)
+(3, 6); -- GESTIONAR_PRODUCTOS (para manejar el stock e inventario)
+
+-- Rol Usuario (id_rol = 4) solo puede ver el dashboard.
+INSERT INTO roles_permisos (id_rol, id_permiso) VALUES
+(4, 1); -- VER_DASHBOARD
+
+-- -----------------------------------------------------
+UPDATE usuarios SET id_rol = 1 WHERE id_usuario = 3;
